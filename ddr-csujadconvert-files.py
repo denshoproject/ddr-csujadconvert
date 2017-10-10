@@ -70,7 +70,7 @@ def get_csufiles(csubinpath):
     return csufiles_
 
 # Main
-LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csuconvert-files.log'.format(datetime.datetime.now()) 
+LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-files.log'.format(datetime.datetime.now()) 
 
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path']
 
@@ -114,7 +114,7 @@ for csuentity in csudata:
     #check that row contains an object record; not just part of compound object
     if csuentity['Project ID'] != '':
 
-        outfile = os.path.join(outputpath, '{:%Y%m%d-%H%M}-ddrfiles.csv'.format(datetime.datetime.now()))
+        outfile = os.path.join(outputpath, '{:%Y%m%d-%H%M}-{}-files.csv'.format(datetime.datetime.now(),ddridbase))
         #write header row if first pass
         if not os.path.isfile(outfile):
             odatafile = open(outfile,'w')

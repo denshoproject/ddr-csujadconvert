@@ -9,13 +9,13 @@ Converts CSUJAD CONTENTdm CSV file to correct format for DDR import.
 
 USAGE
 $ ddr-csujadconvert CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPUT_BASE_PATH
-$ ddr-csujadconvert entity ./raw/csujaddata.csv ./transformed
+$ ddr-csujadconvert ./raw/csujaddata.csv ./transformed
 ---"""
 
 # Constants
 TOPDATAPATH = './data/topicmapping.csv'
 FACDATAPATH = './data/facilities.csv'
-LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csuconvert-entities.log'.format(datetime.datetime.now()) 
+LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-entities.log'.format(datetime.datetime.now()) 
 
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path']
 
