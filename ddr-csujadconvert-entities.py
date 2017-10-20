@@ -8,8 +8,8 @@ DESCRIPTION_LONG = """
 Converts CSUJAD CONTENTdm CSV file to correct format for DDR import.
 
 USAGE
-$ ddr-csujadconvert CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPUT_BASE_PATH
-$ ddr-csujadconvert ./raw/csujaddata.csv ./transformed
+$ ddr-csujadconvert-entities CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPUT_BASE_PATH
+$ ddr-csujadconvert-entities ./raw/csujaddata.csv ./transformed
 ---"""
 
 # Constants
@@ -19,7 +19,7 @@ LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-entities.log'.format(datetime.d
 
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path']
 
-DDR__ENTITY_FIELDS =  ['id','status','public','title','description','creation','location','creator','language','genre','format','extent','contributor','alternate_id','digitize_person','digitize_organization','digitize_date','credit','topic','person','facility','chronology','geography','parent','rights','rights_statement','notes','sort','signature_id']
+DDR_ENTITY_FIELDS =  ['id','status','public','title','description','creation','location','creator','language','genre','format','extent','contributor','alternate_id','digitize_person','digitize_organization','digitize_date','credit','topic','person','facility','chronology','geography','parent','rights','rights_statement','notes','sort','signature_id']
 
 CSU_DELIM = ';'
 
