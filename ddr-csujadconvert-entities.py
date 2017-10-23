@@ -133,7 +133,7 @@ for rawentity in csudata:
         #convert data
         converted['alternate_id'] = get_alternate_id(rawentity['Local ID'], rawentity['Project ID'])
         converted['title'] = rawentity['Title/Name']
-        converted['creators'] = rawentity['Creator']
+        converted['creator'] = rawentity['Creator']
         converted['creation'] = rawentity['Date Created']
         converted['description'] = get_description(rawentity['Description'], rawentity['Reference URL'])
         converted['location'] = rawentity['Location']
@@ -144,7 +144,7 @@ for rawentity in csudata:
         converted['language'] = rawentity['Language']
         converted['extent'] = rawentity['Source Description']
         converted['contributor'] = rawentity['Contributing Repository']
-        converted['right_statement'] = rawentity['Rights']
+        converted['rights_statement'] = rawentity['Rights']
         converted['notes'] = get_notes(rawentity['Notes'], rawentity['Date created'], rawentity['Date modified'])
     
         converted['status'] = 'completed'
