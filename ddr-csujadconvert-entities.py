@@ -8,8 +8,8 @@ DESCRIPTION_LONG = """
 Converts CSUJAD CONTENTdm CSV file to correct format for DDR import.
 
 USAGE
-$ ddr-csujadconvert-entities CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPUT_BASE_PATH
-$ ddr-csujadconvert-entities ./raw/csujaddata.csv ./transformed
+$ ddr-csujadconvert-entities DDR_COLLECTION_ID CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPUT_BASE_PATH CREDIT_TEXT
+$ ddr-csujadconvert-entities ddr-csujad-1 ./raw/csujaddata.csv ./transformed 'Courtesy of the Ikemoto Collection'
 ---"""
 
 # Constants
@@ -19,7 +19,7 @@ LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-entities.log'.format(datetime.d
 
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path']
 
-DDR_ENTITY_FIELDS =  ['id','status','public','title','description','creation','location','creator','language','genre','format','extent','contributor','alternate_id','digitize_person','digitize_organization','digitize_date','credit','topic','person','facility','chronology','geography','parent','rights','rights_statement','notes','sort','signature_id']
+DDR_ENTITY_FIELDS =  ['id','status','public','title','description','creation','location','creators','language','genre','format','extent','contributor','alternate_id','digitize_person','digitize_organization','digitize_date','credit','topics','persons','facility','chronology','geography','parent','rights','rights_statement','notes','sort','signature_id']
 
 CSU_DELIM = ';'
 
@@ -87,6 +87,10 @@ def get_format(rawtype):
 def get_genre(rawgenre):
     genre = rawgenre.split(CSU_DELIM)[0].strip()
     return genre
+    
+def get_contributor(rawcontributor):
+    contributor = rawcontributor.split(CSU_DELIM)[0].strip()
+    return contributor
 
 def get_notes(rawnotes, rawcreated, rawmodified):
     notes = "[csujad_Notes: {}] [csujad_Date created: {}] [csujad_Date modified: {}]".format(rawnotes, rawcreated, rawmodified)
@@ -94,11 +98,17 @@ def get_notes(rawnotes, rawcreated, rawmodified):
 
 # Main
 # Get script args
-csucsvpath = sys.argv[1]
+ddrcollectionid = sys.argv[1]
+csucsvpath = sys.argv[2]
 try: 
-    outputpath = sys.argv[2]
+    outputpath = sys.argv[3]
 except IndexError:
     outputpath = './'
+try:
+    credittext = sys.argv[4]
+except IndexError:
+    credittext = ''
+
 
 print '{} : Begin run.'.format(datetime.datetime.now())
 
@@ -133,25 +143,29 @@ for rawentity in csudata:
         #convert data
         converted['alternate_id'] = get_alternate_id(rawentity['Local ID'], rawentity['Project ID'])
         converted['title'] = rawentity['Title/Name']
-        converted['creator'] = rawentity['Creator']
+        converted['creators'] = rawentity['Creator']
         converted['creation'] = rawentity['Date Created']
         converted['description'] = get_description(rawentity['Description'], rawentity['Reference URL'])
         converted['location'] = rawentity['Location']
         converted['facility'] = get_facility(rawentity['Facility'])
-        converted['topic'] = get_topics(rawentity['Subjects'])
+        converted['topics'] = get_topics(rawentity['Subjects'])
         converted['format'] = get_format(rawentity['Type'])
         converted['genre'] = get_genre(rawentity['Genre'])
         converted['language'] = rawentity['Language']
         converted['extent'] = rawentity['Source Description']
-        converted['contributor'] = rawentity['Contributing Repository']
+        converted['contributor'] = get_contributor(rawentity['Contributing Repository'])
         converted['rights_statement'] = rawentity['Rights']
         converted['notes'] = get_notes(rawentity['Notes'], rawentity['Date created'], rawentity['Date modified'])
     
         converted['status'] = 'completed'
         converted['public'] = '1'
         converted['rights'] = 'cc'
+        
+        converted['credit'] = credittext
     
         processedobject +=1
+        
+        converted['id'] = ddrcollectionid + '-' + processedobject
         
         #write converted data    
         odatafile = open(outfile,'a')
