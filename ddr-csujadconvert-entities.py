@@ -165,7 +165,7 @@ for rawentity in csudata:
     
         processedobject +=1
         
-        converted['id'] = ddrcollectionid + '-' + processedobject
+        converted['id'] = ddrcollectionid + '-' + str(processedobject)
         
         #write converted data    
         odatafile = open(outfile,'a')
