@@ -15,6 +15,7 @@ $ ddr-csujadconvert-entities ddr-csujad-1 ./raw/csujaddata.csv ./transformed 'Co
 # Constants
 TOPDATAPATH = './data/topicmapping.csv'
 FACDATAPATH = './data/facilities.csv'
+GENREDATAPATH = './data/genres.csv'
 LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-entities.log'.format(datetime.datetime.now()) 
 
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path']
@@ -70,12 +71,12 @@ def get_topics(rawtopics):
     for csutopic in csutopics:
         for row in topdata:
             if row['CSU term'] == csutopic:
-                topics += 'term:' + row['Densho term'] + '|id:' + row['Densho term ID'] + ';'
+                #topics += 'term:' + row['Densho term'] + '|id:' + row['Densho term ID'] + ';'
+                topics += 'term:' + row['CSU term'].replace('--',': ') + '|id:' + row['Densho term ID'] + ';'
                 break
     return topics
 
 def get_format(rawtype):
-    #TODO need complete list of CSU Types
     ddrformat = ''
     formatmap = [['Text', 'doc'], ['Image','img'], ['Moving Image','av'],['Sound','av']]
     for item in formatmap:
@@ -85,7 +86,11 @@ def get_format(rawtype):
     return ddrformat
 
 def get_genre(rawgenre):
-    genre = rawgenre.split(CSU_DELIM)[0].strip()
+    csugenre = rawgenre.split(CSU_DELIM)[0].strip()
+    for row in genredata:
+        if row['title'] == csugenre:
+            genre = row['id']
+            break
     return genre
     
 def get_contributor(rawcontributor):
@@ -116,8 +121,9 @@ print '{} : Begin run.'.format(datetime.datetime.now())
 print '{} : Loading data...'.format(datetime.datetime.now())
 facdata = load_data(FACDATAPATH)
 topdata = load_data(TOPDATAPATH)
+genredata = load_data(GENREDATAPATH)
 csudata = load_data(csucsvpath)
-print '{} : Data loaded. CSU data: {} rows; topic data: {} rows; facility data: {} rows.'.format(datetime.datetime.now(), str(len(csudata)), str(len(topdata)), str(len(facdata)))
+print '{} : Data loaded. CSU data: {} rows; topic data: {} rows; facility data: {} rows; genre data: {}.'.format(datetime.datetime.now(), str(len(csudata)), str(len(topdata)), str(len(facdata)), str(len(genredata)))
 
 #print 'csudata first row: {}'.format(csudata[0])
 #print 'csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID'])

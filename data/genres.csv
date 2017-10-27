@@ -1,0 +1,46 @@
+id,title,description
+advertisement,ADVERTISEMENTS,ADVERTISEMENT description
+album,Albums,ALBUM DESCRIPTION
+architecture,Architecture,ARCHITECTURE DESCRIPTION
+baseball_card,Baseball Cards,BASEBALL_CARD description
+blank_form,Blank Forms,BLANK_FORM description
+book,Books,BOOK DESCRIPTION
+broadside,Broadsides,BROADSIDE DESCRIPTION
+cartoon,Cartoons (Commentary),CARTOON DESCRIPTION
+catalog,Catalogs,CATALOG DESCRIPTION
+cityscape,Cityscapes,CITYSCAPE DESCRIPTION
+clipping,Clippings,CLIPPING DESCRIPTION
+correspondence,Correspondence,CORRESPONDENCE DESCRIPTION
+diary,Diaries,DIARY DESCRIPTION
+drawing,Drawings,DRAWING DESCRIPTION
+ephemera,Ephemera,EPHEMERA DESCRIPTION
+essay,Essays,ESSAY DESCRIPTION
+ethnography,Ethnography,ETHNOGRAPHY DESCRIPTION
+fieldnotes,Fieldnotes,FIELDNOTES DESCRIPTION
+illustration,Illustrations,ILLUSTRATION DESCRIPTION
+interview,Interviews,INTERVIEW DESCRIPTION
+landscape,Landscapes,LANDSCAPE DESCRIPTION
+leaflet,Leaflets,LEAFLET DESCRIPTION
+manuscript,Manuscripts,MANUSCRIPT DESCRIPTION
+map,Maps,MAP DESCRIPTION
+misc_document,Miscellaneous Documents,MISC_DOCUMENT description
+motion_picture,Motion Pictures,MOTION_PICTURE description
+music,Music,MUSIC DESCRIPTION
+narrative,Narratives,NARRATIVE DESCRIPTION
+painting,Paintings,PAINTING DESCRIPTION
+pamphlet,Pamphlets,PAMPHLET DESCRIPTION
+periodical,Periodicals,PERIODICAL DESCRIPTION
+petition,Petitions,PETITION DESCRIPTION
+photograph,Photographs,PHOTOGRAPH DESCRIPTION
+physical_object,Physical Objects,PHYSICAL_OBJECT description
+poetry,Poetry,POETRY DESCRIPTION
+portrait,Portraits,PORTRAIT DESCRIPTION
+postcard,Postcards,POSTCARD DESCRIPTION
+poster,Posters,POSTER DESCRIPTION
+print,Prints,PRINT DESCRIPTION
+program,Programs,PROGRAM DESCRIPTION
+rec_log,Recording Logs,REC_LOG description
+score,Scores,SCORE DESCRIPTION
+sheet_music,Sheet Music,SHEET_MUSIC description
+timetable,Timetables,TIMETABLE DESCRIPTION
+transcription,Transcriptions,TRANSCRIPTION DESCRIPTION
