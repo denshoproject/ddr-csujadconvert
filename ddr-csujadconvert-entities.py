@@ -49,8 +49,8 @@ def get_alternate_id(rawlocalid, rawprojectid):
     alternate_id = "CSUJAD Local ID: {}, CSUJAD Project ID: {}".format(rawlocalid, rawprojectid)
     return alternate_id
 
-def get_description(rawdescription, rawreferenceurl):
-    description = "{0} See this object in the California State Universities Japanese American Digitization project site: <a href=\"{1}\" target=\"_blank\">{1}</a>".format(rawdescription, rawreferenceurl)
+def get_description(rawdescription, rawreferenceurl, rawlocalid):
+    description = "{0} See this object in the California State Universities Japanese American Digitization project site: <a href=\"{1}\" target=\"_blank\">{2}</a>".format(rawdescription, rawreferenceurl, rawlocalid)
     return description
 
 def get_facility(rawfacility):
@@ -86,6 +86,7 @@ def get_format(rawtype):
     return ddrformat
 
 def get_genre(rawgenre):
+    genre = ''
     csugenre = rawgenre.split(CSU_DELIM)[0].strip()
     for row in genredata:
         if row['title'] == csugenre:
@@ -151,7 +152,7 @@ for rawentity in csudata:
         converted['title'] = rawentity['Title/Name']
         converted['creators'] = rawentity['Creator']
         converted['creation'] = rawentity['Date Created']
-        converted['description'] = get_description(rawentity['Description'], rawentity['Reference URL'])
+        converted['description'] = get_description(rawentity['Description'], rawentity['Reference URL'], rawentity['Local ID'])
         converted['location'] = rawentity['Location']
         converted['facility'] = get_facility(rawentity['Facility'])
         converted['topics'] = get_topics(rawentity['Subjects'])
