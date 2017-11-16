@@ -72,7 +72,7 @@ def get_csufiles(csubinpath):
 # Main
 LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-files.log'.format(datetime.datetime.now()) 
 
-CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path']
+CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path', 'DDR Rights', 'DDR Credit Text']
 
 # number of '_'-separated parts in collection's 'Local ID'; e.g., 'ike_01_01_006'
 CSU_LOCALID_PARTS = 4
@@ -136,7 +136,7 @@ for csuentity in csudata:
                 ddrfilerow['public'] = '1'
                 ddrfilerow['basename_orig'] = csufile['csu_filename']
                 ddrfilerow['mimetype'] = csuentity['Digital Format'].split(';')[0].strip()
-                ddrfilerow['rights'] = 'cc'
+                ddrfilerow['rights'] = csuentity['DDR Rights']
                 ddrfilerow['sort'] = csufile['csu_filesort']
                 ddrfilerow['label'] = 'Part {}'.format(csufile['csu_filesort'])
                 ddrfilerow['digitize_person'] = ''
