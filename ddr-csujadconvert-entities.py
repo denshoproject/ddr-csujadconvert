@@ -50,7 +50,7 @@ def get_alternate_id(rawlocalid, rawprojectid):
     return alternate_id
 
 def get_description(rawdescription, rawreferenceurl, rawlocalid):
-    description = "{0} See this object in the California State Universities Japanese American Digitization project site: <a href=\"{1}\" target=\"_blank\">{2}</a>".format(rawdescription, rawreferenceurl, rawlocalid)
+    description = "{0} See this object in the California State Universities Japanese American Digitization project site: <a href=\"{1}\" target=\"_blank\" rel=\"noopener noreferrer\">{2}</a>".format(rawdescription, rawreferenceurl, rawlocalid)
     return description
 
 def get_facility(rawfacility):
