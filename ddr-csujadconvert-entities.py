@@ -86,10 +86,10 @@ def get_format(rawtype):
     return ddrformat
 
 def get_genre(rawgenre):
-    genre = ''
+    genre = 'misc_document'
     csugenre = rawgenre.split(CSU_DELIM)[0].strip()
     for row in genredata:
-        if row['title'] == csugenre:
+        if row['title'].lower() == csugenre.lower():
             genre = row['id']
             break
     return genre
