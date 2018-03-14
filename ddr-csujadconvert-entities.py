@@ -27,7 +27,7 @@ CSU_DELIM = ';'
 # Support functions
 
 def load_data(csvpath):
-    csvfile = open(csvpath, 'rb')
+    csvfile = open(csvpath, 'rU')
     csvreader = csv.DictReader(csvfile)
     data = []
     for row in csvreader:
@@ -132,7 +132,7 @@ for rawentity in csudata:
     rownum += 1
     #check that row contains an object record; not a part of compound object
     if rawentity['Project ID'] != '':
-        outfile = os.path.join(outputpath, '{:%Y%m%d-%H%M}-entities.csv'.format(datetime.datetime.now()))
+        outfile = os.path.join(outputpath, '{}-entities-{:%Y%m%d-%H%M}.csv'.format(ddrcollectionid, datetime.datetime.now()))
         #write header row if first pass
         if not os.path.isfile(outfile):
             odatafile = open(outfile,'w')
