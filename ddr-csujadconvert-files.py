@@ -16,7 +16,7 @@ $ ddr-csujadconvert-files ddr-csujad-1 master ./raw/csujaddata.csv ./binaries/pr
 # Support functions
 
 def load_data(csvpath):
-    csvfile = open(csvpath, 'rb')
+    csvfile = open(csvpath, 'rU')
     csvreader = csv.DictReader(csvfile)
     data = []
     for row in csvreader:
