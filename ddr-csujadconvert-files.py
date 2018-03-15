@@ -9,7 +9,7 @@ Uses CSUJAD CONTENTdm CSV file and directory of binary files to create a CSV
 file for DDR import.
 
 USAGE
-$ ddr-csujadconvert-files DDR_COLLECTION_BASE FILE_ROLE CSUJAD_CSV_INPUT_FILE CSUJAD_BINARY_DIRECTORY DDR_CSV_OUTPUT_BASE_PATH
+$ ddr-csujadconvert-files DDR_COLLECTION_ID DDR_FILE_ROLE CSUJAD_CSV_INPUT_FILE CSUJAD_BINARY_DIRECTORY DDR_CSV_OUTPUT_BASE_PATH
 $ ddr-csujadconvert-files ddr-csujad-1 master ./raw/csujaddata.csv ./binaries/preservation ./transformed
 ---"""
 
@@ -114,7 +114,7 @@ for csuentity in csudata:
     #check that row contains an object record; not just part of compound object
     if csuentity['Project ID'] != '':
 
-        outfile = os.path.join(outputpath, '{:%Y%m%d-%H%M}-{}-files.csv'.format(datetime.datetime.now(),ddridbase))
+        outfile = os.path.join(outputpath, '{}-{}-files-{:%Y%m%d-%H%M}.csv'.format(ddridbase, ddrmodel, datetime.datetime.now()))
         #write header row if first pass
         if not os.path.isfile(outfile):
             odatafile = open(outfile,'w')
