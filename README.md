@@ -18,6 +18,7 @@ ddr-csujadconvert-entities DDR_COLLECTION_ID CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPU
 `CSUJAD_CSV_INPUT_FILE`: file path of raw csv object file from CSUJAD (e.g., `./csudh_ind_objects`)
 `DDR_CSV_OUTPUT_BASE_PATH`: base path for output csv file (e.g., `./converted_data`) 
 
+```
 ddr-csujadconvert-files DDR_COLLECTION_ID DDR_FILE_ROLE CSUJAD_CSV_INPUT_FILE CSUJAD_BINARY_DIRECTORY DDR_CSV_OUTPUT_BASE_PATH
 ```
 
