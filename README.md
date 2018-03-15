@@ -14,19 +14,19 @@ The repo contains two scripts:
 ddr-csujadconvert-entities DDR_COLLECTION_ID CSUJAD_CSV_INPUT_FILE DDR_CSV_OUTPUT_BASE_PATH
 ```
 
-`DDR_COLLECTION_ID`: pre-assigned id of the target DDR collection (e.g., `ddr-testing-243`)
-`CSUJAD_CSV_INPUT_FILE`: file path of raw csv object file from CSUJAD (e.g., `./csudh_ind_objects`)
-`DDR_CSV_OUTPUT_BASE_PATH`: base path for output csv file (e.g., `./converted_data`) 
+`DDR_COLLECTION_ID`: pre-assigned id of the target DDR collection (e.g., `ddr-testing-243`)   
+`CSUJAD_CSV_INPUT_FILE`: file path of raw csv object file from CSUJAD (e.g., `./csudh_ind_objects`)  
+`DDR_CSV_OUTPUT_BASE_PATH`: base path for output csv file (e.g., `./converted_data`)  
 
 ```
 ddr-csujadconvert-files DDR_COLLECTION_ID DDR_FILE_ROLE CSUJAD_CSV_INPUT_FILE CSUJAD_BINARY_DIRECTORY DDR_CSV_OUTPUT_BASE_PATH
 ```
 
-`DDR_COLLECTION_ID`: pre-assigned id of the target DDR collection (e.g., `ddr-testing-243`)
-`DDR_FILE_ROLE`: DDR role for the files; must be selected from ddr models (e.g., `mezzanine`)
-`CSUJAD_CSV_INPUT_FILE`: file path of raw csv object file from CSUJAD (e.g., `./csudh_ind_objects.csv`)
-`CSUJAD_BINARY_DIRECTORY`: path to directory containing the CSUJAD binary files (e.g., `./csudh_ind_access`)
-`DDR_CSV_OUTPUT_BASE_PATH`: base path for output csv file (e.g., `./converted_data`) 
+`DDR_COLLECTION_ID`: pre-assigned id of the target DDR collection (e.g., `ddr-testing-243`)  
+`DDR_FILE_ROLE`: DDR role for the files; must be selected from ddr models (e.g., `mezzanine`)  
+`CSUJAD_CSV_INPUT_FILE`: file path of raw csv object file from CSUJAD (e.g., `./csudh_ind_objects.csv`)  
+`CSUJAD_BINARY_DIRECTORY`: path to directory containing the CSUJAD binary files (e.g., `./csudh_ind_access`)  
+`DDR_CSV_OUTPUT_BASE_PATH`: base path for output csv file (e.g., `./converted_data`)  
 
 ### Workflow
 
