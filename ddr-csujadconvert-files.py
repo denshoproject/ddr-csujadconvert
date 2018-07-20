@@ -37,6 +37,10 @@ def parse_csufilename(rawfilename):
     #remove file extension
     rawlocalid = rawfilename[:rawfilename.rfind('.')]
     fsort = '1'
+    is_ext = '0'
+    #check whether file is external
+    if rawfilename[rawfilename.rfind('.'):] in CSU_AVTYPES:
+        is_ext = '1'
     #detect 'ike_01_01_003_Part3.pdf'
     if '_Part' in rawlocalid:
         localid = rawlocalid[:rawlocalid.rfind('_')]
@@ -52,7 +56,7 @@ def parse_csufilename(rawfilename):
         fsort = int(rawlocalid[rawlocalid.rfind('_'):])
     else:
         localid = rawlocalid
-    return localid, fsort
+    return localid, fsort, is_ext
 
 def get_csufiles(csubinpath):
     csufiles_ = []
@@ -62,15 +66,17 @@ def get_csufiles(csubinpath):
             if file_.startswith('.'):
                 continue
             #print 'processing file: {}'.format(file_)
-            csufile_ = collections.OrderedDict.fromkeys(['csu_localid','csu_filename','csu_filesort'])
-            fsort = '1'
+            csufile_ = collections.OrderedDict.fromkeys(['csu_localid','csu_filename','csu_filesort','csu_isext'])
             csufile_['csu_filename'] = file_
-            csufile_['csu_localid'], csufile_['csu_filesort'] = parse_csufilename(file_)
+            csufile_['csu_localid'], csufile_['csu_filesort'], csufile_['csu_isext'] = parse_csufilename(file_)
             csufiles_.append(csufile_)
     return csufiles_
 
 # Main
 LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-files.log'.format(datetime.datetime.now()) 
+
+# file extensions of av types
+CSU_AVTYPES = ['mp3','mp4','m4v','wav','mpg']
 
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path', 'DDR Rights', 'DDR Credit Text']
 
@@ -130,18 +136,26 @@ for csuentity in csudata:
                 #assemble row
                 #TODO: less naive DDR ID creation.auto-generate DDR ID
                 #ddrfilerow['id'] = get_ddrid(csuentity['Local ID'])
-                ddrfilerow['id'] = ddridbase + '-{}'.format(processedobject + 1)
-                ddrfilerow['external'] = '0'
+                ddrid = ddridbase + '-{}'.format(processedobject + 1)
+                ddrfilerow['id'] = ddrid
+                #TODO: add logic 
+                ddrfilerow['external'] = csufile['csu_isext']
                 ddrfilerow['role'] = ddrmodel
                 ddrfilerow['public'] = '1'
                 ddrfilerow['basename_orig'] = csufile['csu_filename']
                 ddrfilerow['mimetype'] = csuentity['Digital Format'].split(';')[0].strip()
                 ddrfilerow['rights'] = csuentity['DDR Rights']
                 ddrfilerow['sort'] = csufile['csu_filesort']
-                ddrfilerow['label'] = 'Part {}'.format(csufile['csu_filesort'])
+                if csufile['csu_filesort'] > 1:
+                    ddrfilerow['label'] = csuentity['Title/Name']
+                else:
+                    ddrfilerow['label'] = 'Part {}'.format(csufile['csu_filesort'])
                 ddrfilerow['digitize_person'] = ''
                 ddrfilerow['tech_notes'] = ''
-                ddrfilerow['external_urls'] = ''
+                if csufile['csu_isext'] == '1':
+                    ddrfilerow['external_urls'] = "label:Internet Archive download|url:https://archive.org/download/{}/{};label:Internet Archive stream|url:https://archive.org/download/{}/{}".format(ddrid,csufile['csu_filename'],ddrid,csufile['csu_filename'])
+                else:
+                    ddrfilerow['external_urls'] = ''
                 ddrfilerow['links'] = ''
                 #write row
                 odatafile = open(outfile,'a')
