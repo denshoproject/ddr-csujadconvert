@@ -1,4 +1,4 @@
-import sys, datetime, csv, shutil, os, re
+import sys, datetime, csv, shutil, os, re, hashlib
 import argparse
 import collections
 
@@ -39,8 +39,12 @@ def parse_csufilename(rawfilename):
     fsort = '1'
     is_ext = '0'
     #check whether file is external
-    if rawfilename[rawfilename.rfind('.'):] in CSU_AVTYPES:
+    #DEBUG
+    print 'rawfilename ext={}'.format(rawfilename[rawfilename.rfind('.'):])
+    if rawfilename[rawfilename.rfind('.')+1:] in CSU_AVTYPES:
         is_ext = '1'
+        #DEBUG
+        print 'filename: {} - is_ext={}'.format(rawfilename,is_ext) 
     #detect 'ike_01_01_003_Part3.pdf'
     if '_Part' in rawlocalid:
         localid = rawlocalid[:rawlocalid.rfind('_')]
@@ -66,11 +70,37 @@ def get_csufiles(csubinpath):
             if file_.startswith('.'):
                 continue
             #print 'processing file: {}'.format(file_)
-            csufile_ = collections.OrderedDict.fromkeys(['csu_localid','csu_filename','csu_filesort','csu_isext'])
+            csufile_ = collections.OrderedDict.fromkeys(['csu_localid','csu_filename','csu_filesort','csu_isext','csu_hash'])
             csufile_['csu_filename'] = file_
             csufile_['csu_localid'], csufile_['csu_filesort'], csufile_['csu_isext'] = parse_csufilename(file_)
+            #gen the ddr file id hash string if external so IA url works
+            if csufile_['csu_isext'] == '1':
+                h = hashlib.sha1()
+                block_size=65536
+                f = open(os.path.join(csubinpath,file_), 'rb')
+                while True:
+                    data = f.read(block_size)
+                    if not data:
+                       break
+                    h.update(data)
+                f.close()
+                csufile_['csu_hash'] = h.hexdigest()
+            else:
+                csufile_['csu_hash'] = '0000000000'
             csufiles_.append(csufile_)
     return csufiles_
+
+def is_id_match(localid,fileid):
+    ismatch = False
+    if localid == fileid:
+        ismatch = True
+    # find files like 'nis_05_06_0090' where localid == 'nis_05_06_0089-0096'
+    elif '-' in localid:
+        rbegin = int(localid[localid.rfind('_')+1:localid.rfind('-')])                       
+        rend = int(localid[localid.rfind('-')+1:])
+        if rbegin <= fileid <= rend:                                                                                   
+            ismatch = True
+    return ismatch
 
 # Main
 LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-files.log'.format(datetime.datetime.now()) 
@@ -130,7 +160,7 @@ for csuentity in csudata:
     
         for csufile in csufiles:
             #find matching file in csufiles; then write some data
-            if csuentity['Local ID'] == csufile['csu_localid']:
+            if is_id_match(csuentity['Local ID'],csufile['csu_localid']):
                 #setup row dict
                 ddrfilerow = collections.OrderedDict.fromkeys(DDR_FILES_FIELDS)
                 #assemble row
@@ -138,7 +168,6 @@ for csuentity in csudata:
                 #ddrfilerow['id'] = get_ddrid(csuentity['Local ID'])
                 ddrid = ddridbase + '-{}'.format(processedobject + 1)
                 ddrfilerow['id'] = ddrid
-                #TODO: add logic 
                 ddrfilerow['external'] = csufile['csu_isext']
                 ddrfilerow['role'] = ddrmodel
                 ddrfilerow['public'] = '1'
@@ -146,14 +175,12 @@ for csuentity in csudata:
                 ddrfilerow['mimetype'] = csuentity['Digital Format'].split(';')[0].strip()
                 ddrfilerow['rights'] = csuentity['DDR Rights']
                 ddrfilerow['sort'] = csufile['csu_filesort']
-                if csufile['csu_filesort'] > 1:
-                    ddrfilerow['label'] = csuentity['Title/Name']
-                else:
-                    ddrfilerow['label'] = 'Part {}'.format(csufile['csu_filesort'])
+                ddrfilerow['label'] = 'Part {}'.format(csufile['csu_filesort'])
                 ddrfilerow['digitize_person'] = ''
                 ddrfilerow['tech_notes'] = ''
                 if csufile['csu_isext'] == '1':
-                    ddrfilerow['external_urls'] = "label:Internet Archive download|url:https://archive.org/download/{}/{};label:Internet Archive stream|url:https://archive.org/download/{}/{}".format(ddrid,csufile['csu_filename'],ddrid,csufile['csu_filename'])
+                    ia_path = ddrid + '/' + ddrid + '-' + ddrmodel + '-'  + csufile['csu_hash'][:10] + '.' + csufile['csu_filename'][-3:]
+                    ddrfilerow['external_urls'] = "label:Internet Archive download|url:https://archive.org/download/{};label:Internet Archive stream|url:https://archive.org/download/{}".format(ia_path,ia_path)
                 else:
                     ddrfilerow['external_urls'] = ''
                 ddrfilerow['links'] = ''
