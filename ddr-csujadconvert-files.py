@@ -205,7 +205,7 @@ for csuentity in csudata:
         odatafile.close()
     else:
         partobject +=1
-        print '{} : Row #{} did not have \'Project ID\'. Looks like a compound object part.'.format(datetime.datetime.now(), rownum)
+        print '{} : Row {} did not have \'Project ID\'. Looks like a compound object part.'.format(datetime.datetime.now(), rownum)
 
 print '{} : Run ended.'.format(datetime.datetime.now())
 print '{} : {} rows processed. {} objects found. {} new file rows created. {} partial object rows discarded.'.format(datetime.datetime.now(), rownum, processedobject, filescreated, partobject)
