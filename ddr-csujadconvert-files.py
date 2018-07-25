@@ -40,11 +40,11 @@ def parse_csufilename(rawfilename):
     is_ext = '0'
     #check whether file is external
     #DEBUG
-    print 'rawfilename ext={}'.format(rawfilename[rawfilename.rfind('.'):])
+    #print 'rawfilename ext={}'.format(rawfilename[rawfilename.rfind('.'):])
     if rawfilename[rawfilename.rfind('.')+1:] in CSU_AVTYPES:
         is_ext = '1'
         #DEBUG
-        print 'filename: {} - is_ext={}'.format(rawfilename,is_ext) 
+        #print 'filename: {} - is_ext={}'.format(rawfilename,is_ext) 
     #detect 'ike_01_01_003_Part3.pdf'
     if '_Part' in rawlocalid:
         localid = rawlocalid[:rawlocalid.rfind('_')]
@@ -54,7 +54,7 @@ def parse_csufilename(rawfilename):
         localid = rawlocalid[:-1]
         fsort = str(ord(rawlocalid.rstrip()[-1]) - 96)
     #detect 'nis_05_035_174_0001.tif' where localid == 'nis_05_035_174'
-    #CSU_LOCALID_PARTS = number of _ separated parts in localid
+    #CSU_LOCALID_PARTS = number of _ separated parts in base localid
     elif len(rawlocalid.split('_')) > CSU_LOCALID_PARTS:
         localid = rawlocalid[:rawlocalid.rfind('_')]
         fsort = int(rawlocalid[rawlocalid.rfind('_'):])
@@ -90,17 +90,23 @@ def get_csufiles(csubinpath):
             csufiles_.append(csufile_)
     return csufiles_
 
-def is_id_match(localid,fileid):
+def do_id_match(localid,fileid):
     ismatch = False
+    altsort = 0
     if localid == fileid:
         ismatch = True
     # find files like 'nis_05_06_0090' where localid == 'nis_05_06_0089-0096'
     elif '-' in localid:
+        #DEBUG
+        #print 'in is_id_match: localid={}; fileid={}'.format(localid,fileid)
         rbegin = int(localid[localid.rfind('_')+1:localid.rfind('-')])                       
         rend = int(localid[localid.rfind('-')+1:])
-        if rbegin <= fileid <= rend:                                                                                   
+        #DEBUG
+        #print 'rbegin={}; rend={}'.format(str(rbegin),str(rend))
+        if rbegin <= int(fileid[fileid.rfind('_')+1:]) <= rend:                                                                                   
             ismatch = True
-    return ismatch
+            altsort = int(fileid[fileid.rfind('_')+1:])
+    return ismatch, altsort
 
 # Main
 LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-files.log'.format(datetime.datetime.now()) 
@@ -111,7 +117,7 @@ CSU_AVTYPES = ['mp3','mp4','m4v','wav','mpg']
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path', 'DDR Rights', 'DDR Credit Text']
 
 # number of '_'-separated parts in collection's 'Local ID'; e.g., 'ike_01_01_006'
-CSU_LOCALID_PARTS = 4
+CSU_LOCALID_PARTS = 3
 
 DDR_FILES_FIELDS = ['id','external','role','basename_orig','mimetype','public','rights','sort','thumb','label','digitize_person','tech_notes','external_urls','links']
 
@@ -125,7 +131,7 @@ try:
 except IndexError:
     outputpath = './'
 
-print '{} : Begin run.'.format(datetime.datetime.now())
+print '{} : Begin run. CSU_LOCALID_PARTS=={}'.format(datetime.datetime.now(),str(CSU_LOCALID_PARTS))
 
 # Load data
 csudata = load_data(csucsvpath)
@@ -160,7 +166,10 @@ for csuentity in csudata:
     
         for csufile in csufiles:
             #find matching file in csufiles; then write some data
-            if is_id_match(csuentity['Local ID'],csufile['csu_localid']):
+            id_match, alt_sort = do_id_match(csuentity['Local ID'],csufile['csu_localid'])
+            if id_match:
+            #set sort val b/c some localids are strange: csufr_jaw_0098-0113
+                filesort = csufile['csu_filesort'] if alt_sort == 0 else alt_sort
                 #setup row dict
                 ddrfilerow = collections.OrderedDict.fromkeys(DDR_FILES_FIELDS)
                 #assemble row
@@ -174,8 +183,9 @@ for csuentity in csudata:
                 ddrfilerow['basename_orig'] = csufile['csu_filename']
                 ddrfilerow['mimetype'] = csuentity['Digital Format'].split(';')[0].strip()
                 ddrfilerow['rights'] = csuentity['DDR Rights']
-                ddrfilerow['sort'] = csufile['csu_filesort']
-                ddrfilerow['label'] = 'Part {}'.format(csufile['csu_filesort'])
+                ddrfilerow['sort'] = filesort
+                #ddrfilerow['label'] = 'Part {}'.format(str(filesort))
+                ddrfilerow['label'] = ''
                 ddrfilerow['digitize_person'] = ''
                 ddrfilerow['tech_notes'] = ''
                 if csufile['csu_isext'] == '1':
