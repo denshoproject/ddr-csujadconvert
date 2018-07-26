@@ -141,6 +141,9 @@ print '{} : Raw csv rows to be processed: {}'.format(datetime.datetime.now(), le
 csufiles = get_csufiles(csubinpath)
 print '{} : Binary files in input directory: {}'.format(datetime.datetime.now(), len(csufiles))
 
+# Check 'Local ID'
+print 'CSU \'Local ID\' appears to have {} parts ({})'.format(str(csudata[0]['Local ID'].count('_')),csudata[0]['Local ID'])
+
 #print 'csudata first row: {}'.format(csudata[0])
 #print 'csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID'])
 
