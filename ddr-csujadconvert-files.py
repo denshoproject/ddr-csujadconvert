@@ -96,7 +96,7 @@ def do_id_match(localid,fileid):
     if localid == fileid:
         ismatch = True
     # find files like 'nis_05_06_0090' where localid == 'nis_05_06_0089-0096'
-    elif '-' in localid:
+    elif '-' in localid and '-' not in fileid:
         #DEBUG
         #print 'in is_id_match: localid={}; fileid={}'.format(localid,fileid)
         rbegin = int(localid[localid.rfind('_')+1:localid.rfind('-')])                       
