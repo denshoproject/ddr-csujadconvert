@@ -57,7 +57,7 @@ def parse_csufilename(rawfilename):
     #CSU_LOCALID_PARTS = number of _ separated parts in base localid
     elif len(rawlocalid.split('_')) > CSU_LOCALID_PARTS:
         localid = rawlocalid[:rawlocalid.rfind('_')]
-        fsort = int(rawlocalid[rawlocalid.rfind('_'):])
+        fsort = int(rawlocalid[rawlocalid.rfind('_')+1:])
     else:
         localid = rawlocalid
     return localid, fsort, is_ext
@@ -96,7 +96,7 @@ def do_id_match(localid,fileid):
     if localid == fileid:
         ismatch = True
     # find files like 'nis_05_06_0090' where localid == 'nis_05_06_0089-0096'
-    elif '-' in localid and '-' not in fileid:
+    elif '-' in localid and '-' not in fileid and localid[:localid.rfind('_')] == fileid[:fileid.rfind('_')]:
         #DEBUG
         #print 'in is_id_match: localid={}; fileid={}'.format(localid,fileid)
         rbegin = int(localid[localid.rfind('_')+1:localid.rfind('-')])                       
@@ -117,7 +117,7 @@ CSU_AVTYPES = ['mp3','mp4','m4v','wav','mpg']
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path', 'DDR Rights', 'DDR Credit Text']
 
 # number of '_'-separated parts in collection's 'Local ID'; e.g., 'ike_01_01_006'
-CSU_LOCALID_PARTS = 3
+CSU_LOCALID_PARTS = 4
 
 DDR_FILES_FIELDS = ['id','external','role','basename_orig','mimetype','public','rights','sort','thumb','label','digitize_person','tech_notes','external_urls','links']
 
@@ -167,6 +167,8 @@ for csuentity in csudata:
         for csufile in csufiles:
             #find matching file in csufiles; then write some data
             id_match, alt_sort = do_id_match(csuentity['Local ID'],csufile['csu_localid'])
+            #DEBUG
+            #print 'csuentity[\'Local ID\']: {}; csufile[\'csu_localid\']: {}; id_match: {}'.format(csuentity['Local ID'],csufile['csu_localid'],id_match)
             if id_match:
             #set sort val b/c some localids are strange: csufr_jaw_0098-0113
                 filesort = csufile['csu_filesort'] if alt_sort == 0 else alt_sort
