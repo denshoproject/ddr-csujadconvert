@@ -1,4 +1,4 @@
-import sys, datetime, csv, shutil, os, re, hashlib
+import sys, datetime, csv, shutil, os, re, hashlib, mimetypes
 import argparse
 import collections
 
@@ -62,6 +62,24 @@ def parse_csufilename(rawfilename):
         localid = rawlocalid
     return localid, fsort, is_ext
 
+def do_filehash(path,algo='sha1'):
+    if algo == 'sha256':
+        h = hashlib.sha256()
+    elif algo == 'md5':
+        h = hashlib.md5()
+    else:
+        h = hashlib.sha1()
+    block_size=65536
+    f = open(path, 'rb')
+    while True:
+        data = f.read(block_size)
+        if not data:
+            break
+        h.update(data)
+    f.close()
+    return h.hexdigest()
+
+
 def get_csufiles(csubinpath):
     csufiles_ = []
     for root, dirs, files in os.walk(csubinpath):
@@ -75,18 +93,17 @@ def get_csufiles(csubinpath):
             csufile_['csu_localid'], csufile_['csu_filesort'], csufile_['csu_isext'] = parse_csufilename(file_)
             #gen the ddr file id hash string if external so IA url works
             if csufile_['csu_isext'] == '1':
-                h = hashlib.sha1()
-                block_size=65536
-                f = open(os.path.join(csubinpath,file_), 'rb')
-                while True:
-                    data = f.read(block_size)
-                    if not data:
-                       break
-                    h.update(data)
-                f.close()
-                csufile_['csu_hash'] = h.hexdigest()
+                thefile = os.path.join(csubinpath,file_)
+                csufile_['csu_sha1'] = do_filehash(thefile,'sha1')
+                csufile_['csu_sha256'] = do_filehash(thefile,'sha256')
+                csufile_['csu_md5'] = do_filehash(thefile,'md5')
+                csufile_['csu_size'] = os.path.getsize(thefile)
+                csufile_['csu_mimetype'] = mimetypes.MimeTypes().guess_type(thefile)[0]
             else:
-                csufile_['csu_hash'] = '0000000000'
+                csufile_['csu_sha1'] = ''
+                csufile_['csu_sha256'] = ''
+                csufile_['csu_md5'] = ''
+                csufile_['csu_size'] = ''
             csufiles_.append(csufile_)
     return csufiles_
 
@@ -114,12 +131,14 @@ LOGFILE = './logs/{:%Y%m%d-%H%M%S}-csujadconvert-files.log'.format(datetime.date
 # file extensions of av types
 CSU_AVTYPES = ['mp3','mp4','m4v','wav','mpg']
 
+DDR_MODELS = ['master','mezzanine','transcript','administrative']
+
 CSU_FIELDS = ['Local ID', 'Project ID', 'Title/Name', 'Creator', 'Date Created', 'Description', 'Location', 'Facility', 'Subjects', 'Type', 'Genre', 'Language', 'Source Description', 'Collection', 'Collection Finding Aid', 'Collection Description', 'Digital Format', 'Project Name', 'Contributing Repository', 'View Item', 'Rights', 'Notes', 'Object File Name', 'OCLC number', 'Date created', 'Date modified', 'Reference URL', 'CONTENTdm number', 'CONTENTdm file name', 'CONTENTdm file path', 'DDR Rights', 'DDR Credit Text']
 
 # number of '_'-separated parts in collection's 'Local ID'; e.g., 'ike_01_01_006'
-CSU_LOCALID_PARTS = 4
+CSU_LOCALID_PARTS = 3
 
-DDR_FILES_FIELDS = ['id','external','role','basename_orig','mimetype','public','rights','sort','thumb','label','digitize_person','tech_notes','external_urls','links']
+DDR_FILES_FIELDS = ['id','external','role','basename_orig','mimetype','public','rights','sort','thumb','label','digitize_person','tech_notes','external_urls','links', 'sha1', 'sha256', 'md5','size']
 
 # Get script args
 ddridbase = sys.argv[1]
@@ -133,6 +152,11 @@ except IndexError:
 
 print '{} : Begin run. CSU_LOCALID_PARTS=={}'.format(datetime.datetime.now(),str(CSU_LOCALID_PARTS))
 
+# Bail on invalid file role arg
+if ddrmodel not in DDR_MODELS:
+    print '{} : \'{}\' is not a valid DDR file role. Run terminated.'.format(datetime.datetime.now(),ddrmodel)
+    exit(1)
+
 # Load data
 csudata = load_data(csucsvpath)
 print '{} : Raw csv rows to be processed: {}'.format(datetime.datetime.now(), len(csudata))
@@ -142,7 +166,7 @@ csufiles = get_csufiles(csubinpath)
 print '{} : Binary files in input directory: {}'.format(datetime.datetime.now(), len(csufiles))
 
 # Check 'Local ID'
-print 'CSU \'Local ID\' appears to have {} parts ({})'.format(str(csudata[0]['Local ID'].count('_')),csudata[0]['Local ID'])
+print 'CSU \'Local ID\' appears to have {} parts ({})'.format(str(csudata[0]['Local ID'].count('_')+1),csudata[0]['Local ID'])
 
 #print 'csudata first row: {}'.format(csudata[0])
 #print 'csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID'])
@@ -186,7 +210,6 @@ for csuentity in csudata:
                 ddrfilerow['role'] = ddrmodel
                 ddrfilerow['public'] = '1'
                 ddrfilerow['basename_orig'] = csufile['csu_filename']
-                ddrfilerow['mimetype'] = csuentity['Digital Format'].split(';')[0].strip()
                 ddrfilerow['rights'] = csuentity['DDR Rights']
                 ddrfilerow['sort'] = filesort
                 #ddrfilerow['label'] = 'Part {}'.format(str(filesort))
@@ -194,17 +217,23 @@ for csuentity in csudata:
                 ddrfilerow['digitize_person'] = ''
                 ddrfilerow['tech_notes'] = ''
                 if csufile['csu_isext'] == '1':
-                    ia_path = ddrid + '/' + ddrid + '-' + ddrmodel + '-'  + csufile['csu_hash'][:10] + '.' + csufile['csu_filename'][-3:]
+                    ia_path = ddrid + '/' + ddrid + '-' + ddrmodel + '-'  + csufile['csu_sha1'][:10] + '.' + csufile['csu_filename'][-3:]
                     ddrfilerow['external_urls'] = "label:Internet Archive download|url:https://archive.org/download/{};label:Internet Archive stream|url:https://archive.org/download/{}".format(ia_path,ia_path)
+                    ddrfilerow['mimetype'] = csufile['csu_mimetype']
                 else:
                     ddrfilerow['external_urls'] = ''
+                    ddrfilerow['mimetype'] = csuentity['Digital Format'].split(';')[0].strip()
+                ddrfilerow['sha1'] = csufile['csu_sha1']
+                ddrfilerow['sha256'] = csufile['csu_sha256']
+                ddrfilerow['md5'] = csufile['csu_md5']
+                ddrfilerow['size'] = csufile['csu_size']
                 ddrfilerow['links'] = ''
                 #write row
                 odatafile = open(outfile,'a')
                 outwriter = csv.writer(odatafile)
                 outwriter.writerow(ddrfilerow.values())
                 filescreated +=1
-            
+
         #increment the processed counter and close the output file
         processedobject +=1
         odatafile.close()
