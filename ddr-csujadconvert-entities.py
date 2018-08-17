@@ -43,6 +43,9 @@ def write_log(message):
     logfile.close()
     return
 
+def _make_attribute_list(rawatt):
+    return [x.strip() for x in rawatt.split(CSU_DELIM)]
+
 # Process fields
 
 def get_alternate_id(rawlocalid, rawprojectid):
@@ -55,7 +58,7 @@ def get_description(rawdescription, rawreferenceurl, rawlocalid):
 
 def get_facility(rawfacility):
     facility = ''
-    csufacilities = [x.strip() for x in rawfacility.split(CSU_DELIM)]
+    csufacilities = _make_attribute_list(rawfacility)
     for csufacility in csufacilities:
         if csufacility:
             checkfacility = csufacility.split('--')[1]
@@ -67,7 +70,7 @@ def get_facility(rawfacility):
 
 def get_topics(rawtopics):
     topics = ''
-    csutopics = [x.strip() for x in rawtopics.split(CSU_DELIM)]
+    csutopics = _make_attribute_list(rawtopics)
     for csutopic in csutopics:
         for row in topdata:
             if row['CSU term'] == csutopic:
@@ -76,24 +79,38 @@ def get_topics(rawtopics):
                 break
     return topics
 
-def get_format(rawtype):
-    ddrformat = ''
+#TODO: better parsing for oral history vs. plain av types
+def get_format(rawtypes):
+    csuformats = _make_attribute_list(rawtypes)
+    ddrformats = []
     formatmap = [['Text', 'doc'], ['Image','img'], ['Moving Image','av'],['Sound','av']]
-    for item in formatmap:
-        if item[0] == rawtype:
-            ddrformat = item[1]
-            break
+    for csuformat in csuformats:
+        for item in formatmap:
+            if item[0] == csuformat:
+                ddrformats.append(item[1])
+                break
+    if 'av' in ddrformats:
+        ddrformat = 'av'
+    else:
+        ddrformat = ddrformat[0]
     return ddrformat
 
-def get_genre(rawgenre):
-    genre = 'misc_document'
-    csugenre = rawgenre.split(CSU_DELIM)[0].strip()
-    for row in genredata:
-        if row['title'].lower() == csugenre.lower():
-            genre = row['id']
-            break
+def get_genre(rawgenres):
+    genres = []
+    csugenres = _make_attribute_list(rawgenres)
+    for csugenre in csugenres:
+        for row in genredata:
+            if row['title'].lower() == csugenre.lower():
+                genres.append(row['id'])
+                break
+    if 'interview' in genres:
+        genre = 'interview'
+    elif not genres:
+        genre = genres[0]
+    else:
+        genre = 'misc_document'
     return genre
-    
+
 def get_contributor(rawcontributor):
     contributor = rawcontributor.split(CSU_DELIM)[0].strip()
     return contributor
@@ -106,7 +123,7 @@ def get_notes(rawnotes, rawcreated, rawmodified):
 # Get script args
 ddrcollectionid = sys.argv[1]
 csucsvpath = sys.argv[2]
-try: 
+try:
     outputpath = sys.argv[3]
 except IndexError:
     outputpath = './'
@@ -139,10 +156,10 @@ for rawentity in csudata:
             outwriter = csv.writer(odatafile)
             outwriter.writerow(DDR_ENTITY_FIELDS)
             odatafile.close()
-    
+
         #setup row dict
         converted = collections.OrderedDict.fromkeys(DDR_ENTITY_FIELDS)
-    
+
         #convert data
         converted['alternate_id'] = get_alternate_id(rawentity['Local ID'], rawentity['Project ID'])
         converted['title'] = rawentity['Title/Name']
@@ -161,15 +178,15 @@ for rawentity in csudata:
         converted['notes'] = get_notes(rawentity['Notes'], rawentity['Date created'], rawentity['Date modified'])
         converted['rights'] = rawentity['DDR Rights']
         converted['credit'] = rawentity['DDR Credit Text']
-    
+
         converted['status'] = 'completed'
         converted['public'] = '1'
-            
+
         processedobject +=1
-        
+
         converted['id'] = ddrcollectionid + '-' + str(processedobject)
-        
-        #write converted data    
+
+        #write converted data
         odatafile = open(outfile,'a')
         outwriter = csv.writer(odatafile)
         outwriter.writerow(converted.values())
