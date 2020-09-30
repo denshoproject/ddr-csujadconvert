@@ -79,6 +79,7 @@ def get_topics(rawtopics):
                 break
     return topics
 
+#CSU data export may have multiple values for format; if *any* value maps to an av type, we use that
 #TODO: better parsing for oral history vs. plain av types
 def get_format(rawtypes):
     csuformats = _make_attribute_list(rawtypes)
@@ -92,7 +93,7 @@ def get_format(rawtypes):
     if 'av' in ddrformats:
         ddrformat = 'av'
     else:
-        ddrformat = ddrformat[0]
+        ddrformat = ddrformats[0]
     return ddrformat
 
 def get_genre(rawgenres):
