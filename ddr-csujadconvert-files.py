@@ -40,11 +40,11 @@ def parse_csufilename(rawfilename):
     is_ext = '0'
     #check whether file is external
     #DEBUG
-    #print 'rawfilename ext={}'.format(rawfilename[rawfilename.rfind('.'):])
+    #print ('rawfilename ext={}'.format(rawfilename[rawfilename.rfind('.'):]))
     if rawfilename[rawfilename.rfind('.')+1:] in CSU_AVTYPES:
         is_ext = '1'
         #DEBUG
-        #print 'filename: {} - is_ext={}'.format(rawfilename,is_ext) 
+        #print ('filename: {} - is_ext={}'.format(rawfilename,is_ext)) 
     #detect 'ike_01_01_003_Part3.pdf'
     if '_Part' in rawlocalid:
         localid = rawlocalid[:rawlocalid.rfind('_')]
@@ -87,7 +87,7 @@ def get_csufiles(csubinpath):
             #remove hidden/system files
             if file_.startswith('.'):
                 continue
-            #print 'processing file: {}'.format(file_)
+            #print ('processing file: {}'.format(file_))
             csufile_ = collections.OrderedDict.fromkeys(['csu_localid','csu_filename','csu_filesort','csu_isext','csu_hash'])
             csufile_['csu_filename'] = file_
             csufile_['csu_localid'], csufile_['csu_filesort'], csufile_['csu_isext'] = parse_csufilename(file_)
@@ -115,11 +115,11 @@ def do_id_match(localid,fileid):
     # find files like 'nis_05_06_0090' where localid == 'nis_05_06_0089-0096'
     elif '-' in localid and '-' not in fileid and localid[:localid.rfind('_')] == fileid[:fileid.rfind('_')]:
         #DEBUG
-        #print 'in is_id_match: localid={}; fileid={}'.format(localid,fileid)
+        #print ('in is_id_match: localid={}; fileid={}'.format(localid,fileid))
         rbegin = int(localid[localid.rfind('_')+1:localid.rfind('-')])                       
         rend = int(localid[localid.rfind('-')+1:])
         #DEBUG
-        #print 'rbegin={}; rend={}'.format(str(rbegin),str(rend))
+        #print ('rbegin={}; rend={}'.format(str(rbegin),str(rend)))
         if rbegin <= int(fileid[fileid.rfind('_')+1:]) <= rend:                                                                                   
             ismatch = True
             altsort = int(fileid[fileid.rfind('_')+1:])
@@ -150,26 +150,26 @@ try:
 except IndexError:
     outputpath = './'
 
-print '{} : Begin run. CSU_LOCALID_PARTS=={}'.format(datetime.datetime.now(),str(CSU_LOCALID_PARTS))
+print ('{} : Begin run. CSU_LOCALID_PARTS=={}'.format(datetime.datetime.now(),str(CSU_LOCALID_PARTS)))
 
 # Bail on invalid file role arg
 if ddrmodel not in DDR_MODELS:
-    print '{} : \'{}\' is not a valid DDR file role. Run terminated.'.format(datetime.datetime.now(),ddrmodel)
+    print ('{} : \'{}\' is not a valid DDR file role. Run terminated.'.format(datetime.datetime.now(),ddrmodel))
     exit(1)
 
 # Load data
 csudata = load_data(csucsvpath)
-print '{} : Raw csv rows to be processed: {}'.format(datetime.datetime.now(), len(csudata))
+print ('{} : Raw csv rows to be processed: {}'.format(datetime.datetime.now(), len(csudata)))
 
 # Get file names from CSU data
 csufiles = get_csufiles(csubinpath)
-print '{} : Binary files in input directory: {}'.format(datetime.datetime.now(), len(csufiles))
+print ('{} : Binary files in input directory: {}'.format(datetime.datetime.now(), len(csufiles)))
 
 # Check 'Local ID'
-print 'CSU \'Local ID\' appears to have {} parts ({})'.format(str(csudata[0]['Local ID'].count('_')+1),csudata[0]['Local ID'])
+print ('CSU \'Local ID\' appears to have {} parts ({})'.format(str(csudata[0]['Local ID'].count('_')+1),csudata[0]['Local ID']))
 
-#print 'csudata first row: {}'.format(csudata[0])
-#print 'csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID'])
+#print ('csudata first row: {}'.format(csudata[0]))
+#print ('csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID']))
 
 #init counters
 rownum = 0
@@ -195,7 +195,7 @@ for csuentity in csudata:
             #find matching file in csufiles; then write some data
             id_match, alt_sort = do_id_match(csuentity['Local ID'],csufile['csu_localid'])
             #DEBUG
-            #print 'csuentity[\'Local ID\']: {}; csufile[\'csu_localid\']: {}; id_match: {}'.format(csuentity['Local ID'],csufile['csu_localid'],id_match)
+            #print ('csuentity[\'Local ID\']: {}; csufile[\'csu_localid\']: {}; id_match: {}'.format(csuentity['Local ID'],csufile['csu_localid'],id_match))
             if id_match:
             #set sort val b/c some localids are strange: csufr_jaw_0098-0113
                 filesort = csufile['csu_filesort'] if alt_sort == 0 else alt_sort
@@ -239,9 +239,9 @@ for csuentity in csudata:
         odatafile.close()
     else:
         partobject +=1
-        print '{} : Row {} did not have \'Project ID\'. Looks like a compound object part.'.format(datetime.datetime.now(), rownum)
+        print ('{} : Row {} did not have \'Project ID\'. Looks like a compound object part.'.format(datetime.datetime.now(), rownum))
 
-print '{} : Run ended.'.format(datetime.datetime.now())
-print '{} : {} rows processed. {} objects found. {} new file rows created. {} partial object rows discarded.'.format(datetime.datetime.now(), rownum, processedobject, filescreated, partobject)
+print ('{} : Run ended.'.format(datetime.datetime.now()))
+print ('{} : {} rows processed. {} objects found. {} new file rows created. {} partial object rows discarded.'.format(datetime.datetime.now(), rownum, processedobject, filescreated, partobject))
 
 #end

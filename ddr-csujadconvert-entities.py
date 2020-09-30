@@ -129,18 +129,18 @@ except IndexError:
     outputpath = './'
 
 
-print '{} : Begin run.'.format(datetime.datetime.now())
+print ('{} : Begin run.'.format(datetime.datetime.now()))
 
 # Load data
-print '{} : Loading data...'.format(datetime.datetime.now())
+print ('{} : Loading data...'.format(datetime.datetime.now()))
 facdata = load_data(FACDATAPATH)
 topdata = load_data(TOPDATAPATH)
 genredata = load_data(GENREDATAPATH)
 csudata = load_data(csucsvpath)
-print '{} : Data loaded. CSU data: {} rows; topic data: {} rows; facility data: {} rows; genre data: {}.'.format(datetime.datetime.now(), str(len(csudata)), str(len(topdata)), str(len(facdata)), str(len(genredata)))
+print ('{} : Data loaded. CSU data: {} rows; topic data: {} rows; facility data: {} rows; genre data: {}.'.format(datetime.datetime.now(), str(len(csudata)), str(len(topdata)), str(len(facdata)), str(len(genredata))))
 
-#print 'csudata first row: {}'.format(csudata[0])
-#print 'csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID'])
+#print ('csudata first row: {}'.format(csudata[0]))
+#print ('csudata first row \'Local ID\': {}'.format(csudata[0]['Local ID']))
 
 rownum = 0
 processedobject = 0
@@ -193,9 +193,9 @@ for rawentity in csudata:
         odatafile.close()
     else:
         partobject +=1
-        print '{} : Row #{} did not have \'Project ID\'. Looks like a compound object part.'.format(datetime.datetime.now(), rownum)
+        print ('{} : Row #{} did not have \'Project ID\'. Looks like a compound object part.'.format(datetime.datetime.now(), rownum))
 
-print '{} : Run ended.'.format(datetime.datetime.now())
-print '{} : {} rows processed. {} new entity rows created. {} partial object rows discarded.'.format(datetime.datetime.now(), rownum, processedobject, partobject)
+print ('{} : Run ended.'.format(datetime.datetime.now()))
+print ('{} : {} rows processed. {} new entity rows created. {} partial object rows discarded.'.format(datetime.datetime.now(), rownum, processedobject, partobject))
 
 #end

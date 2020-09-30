@@ -2,10 +2,6 @@
 
 Python scripts used to convert CSUJAD ContentDM-generated csv object export metadata to DDR-compatible `entity` and `file` csvs for import.
 
-## Requirements
-
-Compatible with Python 2.7 only.
-
 ## Usage
 
 The repo contains two scripts: 
